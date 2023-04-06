@@ -1,0 +1,6 @@
+bin/
+lib/
+.gitignore
+.idea/
+*/data/
+pyvenv.cfg
