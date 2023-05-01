@@ -1,0 +1,82 @@
+\chapter{Úvod do problematiky}\label{chap:overview}
+
+V úvodnej kapitole opíšeme základné poznatky z problematiky, ktoré treba zohľadniť pri neskoršom vytváraní návrhu riešenia. Kapitola obsahuje zhrnutie viacerých predošlých prác zaoberajúcich sa podobnými problémami. Problematiku môžeme rozdeliť na dve väčšie časti, detekcia a významnosť reklám.
+
+\section{Detekcia objektov}
+
+% q: Detekovať alebo detegovať?
+% a: Správna podoba slovesa je detegovať. Pravopisný rozdiel podstatného mena detekcia a slovesa detegovať súvisí s tým, že nie sú utvorené z rovnakého odvodzovacieho základu. Podobne je to napríklad pri dvojici, funkcia – fungovať.
+
+Hlavným účelom detekcie objektov je identifikovať a lokalizovať jeden alebo viacero hľadaných objektov na obrázku alebo videu. Detektor je prispôsobený na množinu tried, pre ktorú bol vytvorený. Na lokalizáciu sa používa \textit{bounding box}, ktorý pomocou súradníc z obrázka opisuje priestor, v ktorom sa identifikovaný objekt nachádza. V prípade videa sa za pomoci ďalších techník dokáže sledovať pohyb objektu v scéne. Ide o stavebný kameň umelej inteligencie, ktorá umožňuje počítačovým systémom „vidieť“, čím ponúka riešenie pre mnohé praktické úlohy.
+
+% https://www.v7labs.com/industries
+Schopnosť identifikovať a lokalizovať objekty možno použiť na riešenie viacerých úloh, ako napríklad počítanie objektov, kontrola kvality alebo v prípade videa sledovanie trajektórie pohybu. Za posledné roky sa detekcia objektov a všeobecne počítačové videnie významne vyvinulo a prinieslo prevratné zmeny v hospodárstve, medicíne, športe a v mnohých iných odvetviach. Detekciu objektov je možné vykonávať pomocou tradičných techník spracovania obrazu alebo pomocou hlbokého učenia. Pri mnohých, najmä jednoduchších úlohách, sa dajú využiť metódy z tradičného spracovania obrazu, ktoré sú schopné detegovať hľadané objekty v jednoduchých scénach s nízkou požiadavkou na zdroje. Kvôli tomu môžu byť aj dnes v niektorých úlohách preferované oproti hlbokému učeniu, ktoré vyžaduje väčšiu kapacitu na hardvér a hlavne veľa dát na trénovanie. \cite{CV-vs-DL}.
+
+\subsection{Tradičné metódy}
+
+Architektúru tradičných metód pre detekciu objektov možno rozdeliť na tri základné kroky. Prvým je výber kandidátskeho regiónu, druhým získavanie príznakov a posledným klasifikácia.
+
+Vstupný obrázok je na začiatku spracovaný algoritmom, ktorý hľadá kandidátov na potenciálnu pozíciu hľadaného objektu. V tomto kroku sa nevyžaduje, aby bola pozícia presná, dôležité je dosiahnuť vysokú hodnotu skutočných umiestnení. Oblasti pre kandidátov možno vygenerovať pomocou posuvných okien \cite{sel-search}.
+
+Po získaní kandidátskych oblastí sa v ďalšom kroku používajú deskriptory na hľadanie príznakov, ktoré spresňujú vstupné údaje bez straty dôležitých informácií. Najznámejšími príkladmi deskriptorov sú \textit{Histogram of Oriented Gradients (HOG)} \cite{HOG}, \textit{Speeded up robust features (SURF)} \cite{SURF} a \textit{Scale-Invariant Feature Transform (SIFT)} \cite{SIFT}. Nakoniec v poslednom kroku je použitý klasifikátor, napríklad \textit{support vector machine (SVM)} \cite{SVM} alebo \textit{Adaptive Boosting (Adaboost)} \cite{Adaboost} na určenie finálnej identifikácie a lokalizácie objektu.
+
+Pri detekcii treba brať do úvahy viacero možných problémov, ktoré v nietorých prípadoch môžu predstavovať neprekonateľné prekážky pre tradičné metódy. Častými problémami je oklúzia, osvetlenie, deformácia, variácia pohľadu a variácia objektu v rámci jednej triedy. Neurónové siete majú väčšiu presnosť detekcie aj pri takýchto problémoch, čím sú oveľa robustnejšie než tradičné metódy a preto sú dobrou voľbou nielen pre našu prácu.
+
+\subsection{Detekcia reklám}
+
+Neurónové siete sa na detekciu objektov využívajú už desaťročia a nie je prekvapením, že sú často používané aj pri pozorovaní dopravy. Detekcia áut, chodcov, dopravných a poznávacích značiek je z pohľadu pozorovania dopravy fundamentálna téma, ktorá je spracovaná v mnohých prácach. Našli sme aj viaceré publikácie priamo zamerané na detekciu reklamných plôch, ktorými sa možno inšpirovať a porovnať.
+
+% todo môžem používať slovíčko: datasete? alebo radšej použiť iné slovo
+
+Autori práce \cite{SSD-YOLO} porovnávajú dva detektory objektov, \textit{Single Shot MultiBox Detector (SSD)} a \textit{You Only Look Once (YOLO)}. Oba detektory boli najskôr trénované na \textit{COCO} databáze \cite{Coco} a potom trénované na sade obrázkov zobrazujúce bilbordy. V obidvoch prípadoch modely dosahujú dobré výsledky pre rôzne veľkosti reklám za rôznych svetelných podmienok s komplexným pozadím. Výsledky z experimentu naznačujú, že SSD je presnejší v tom zmysle, že robí menej chýb pri identifikácii výskytu reklamy. Na druhej strane YOLO dokáže vyhodnotiť výsledok za kratší čas, ale dopúšťa sa väčšej chybovosti označovaním falošných výskytov. Čiastočne by to mohla vybalansovať zmena prahu istoty pre označenie výskytu, čo ale v práci nebolo testované.
+
+V práci \cite{Hossari} na detekciu reklám autori navrhli \textit{Advert detection model (ADNet)} inšpirovaný \textit{VGG} architektúrou \cite{simonyan2015deep}. Rozdiel voči VGG je v tom, že ADNet preskakuje päť vrstiev zo začiatku a tri z konca. Na koniec pridáva tri plne prepojené vrstvy a hneď po prvej sa aktivuje \textit{dropout} s 50\% stratou prepojenia medzi dvoma uzlami. Navrhnutú sieť trénovali na databáze \textit{Mapillary Vistas} \cite{Mapillary}. Výsledky práce uvádzajú iba v presnosti klasifikácie (snímok s reklamou alebo snímok bez reklamy) na úrovni 94\%. Tiež uvádzajú, že počas testovania vedia každú snímku z videa vyhodnotiť za 54ms.
+
+V práci \cite{GeoTag} bola ako základ použitá architektúra AlexNet \cite{AlexNet}, ktorej cieľom bolo vyhodnotiť nahrávané video v reálnom čase a nahlásiť polohu reklamy s jej obsahom. Výsledky na vlastnej databáze dosiahli významne menšiu presnosť a to najmä na detekcii menších reklamných plôch. Autori opisujú vývoj trénovania skúšaním rôznych parametrov. Nakoniec dosiahli úspešnosť tréningu 92.7\%, ale výsledky na testovacích dátach dopadli približne o 20\% horšie, čo je zjavne spôsobené prehnaným trénovaním. Detekcie reklám boli ďalším procesom rozdelené do kategórií ako nehnuteľnosti, kampaň, produkty a mnohé iné, avšak bližšie výsledky v práci neboli uvedené. 
+
+
+\section{Významnosť reklám}
+
+Pozornosť vodiča je kritickým problémom, ktorému sa v posledných rokoch venuje veľká pozornosť. Je nevyhnutné, aby vodiči zostali počas jazdy sústredení, aby sa vyhli nebezpečným situáciám na ceste. Ľudská pozornosť je častokrát ľahko ovplyvniteľná a existuje veľa rušivých prvkov, ktoré môžu odviesť pozornosť vodiča. Jedným z takýchto rozptýlení môže byť reklama, ktorá má potenciál odvrátiť pozornosť vodičov od cesty. Štúdie ukázali, že aj chvíľkové rozptýlenie môže mať pri šoférovaní vážne následky. Napríklad vodič, ktorý v meste odtrhne oči od vozovky len na dve sekundy, aby si prečítal obsah reklamy prejde vzdialenosť približne 28 metrov. Keď sa to skombinuje so situáciou, kedy vodič musí reagovať na náhlu zmenu v premávke, nemusí mať dostatok času odvrátiť nehodu. %\cite{cz, n1}.
+
+Všetky nájdené štúdie, ktoré pozorovali účinky reklamy na vodiča používali eyetracker zariadenie na sledovanie pohľadu vodiča. Niektoré okrem toho merali rýchlosť vozidla, kognitívne funkcie z EEG zariadenia alebo aplikovali metódu “Wiener Fahrprobe” \cite{WF} na pozorovanie vodičovho správania. Je dôležité povedať, že štúdie neboli konzistentné a líšili sa v mnohých dôležitých veciach. Približne polovica štúdií zbierala dáta z reálneho prostredia a druhá polovica využívala namiesto reálnej jazdy simulátory v rôznych podmienkach.
+
+Vplyv na správanie vodiča závisí od charakteristiky reklamy a od samotného vodiča. U mladých \cite{stavrinos2016visual} a starších vodičov \cite{belyusar2016field, EDQUIST2011619} boli identifikované dlhšie fixácie na reklamy, čo viedlo k väčšej chybovosti než pre zvyšok vodičov. Práca \cite{horberry200813} pridáva tvrdenie, že starší vodiči jazdili pomalšie na úsekoch s veľkou hustotou reklám. Podobné výsledky sa ukázali aj pri neskúsených vodičov. V práci \cite{bendak2010role} zistili, že vodič prechádzajúci okolo reklamy má mierne problémy s držaním vozidla v správnom jazdnom pruhu a v križovatkách. Pri pozorovaní rozdielov medzi pohlavím sa v žiadnej práci neuvádzajú významné rozdiely.
+
+\subsection{Charakteristiky reklám}
+
+Podľa prečítaných prác by sa charakteristika reklám dala rozdeliť do nasledujúcich troch skupín.
+
+\subsubsection{Typ reklamy}
+Viaceré práce ukazujú, že elektronické bilbordy dosahujú dlhší pohľad v porovnaní s tradičnou reklamou, ktorá nevyžaruje svetlo \cite{OVIEDOTRESPALACIOS201985, beijer, brome}. Naopak v práci \cite{n1} toto tvrdenie nebolo potvrdené, pretože sa nenašli žiadne zásadne rozdiely medzi tradičnými a elektronickými bilbordmi. Experiment v práci \cite{brome} ukazuje, že elektronické bilbordy, ktoré v krátkych intervaloch striedajú obsah priťahujú vodičovú pozornosť častejšie, ale celková dĺžka fixácia nie je výrazne odlišná. Autori sa v prácach \cite{mollu2018driving} a \cite{beijer} zhodujú s tým, že vysoká svietivosť v prípade elektronickej reklamy môže byť príčinou dopravnej nehody, nakoľko najdlhšie ovplyvnia správanie vodiča. Potvrdili to aj účastníci experimentu svojimi názormi v dotazníku, ktorý vyplnili krátko po ukončení jazdy. Obzvlášť veľkú pozornosť pútajú elektronické bilbordy s video obsahom. Práve takýto typ reklamy je kvôli priemernej dĺžke fixácií najnebezpečnejší \cite{yellappan2016exposure, smiley2005traffic}.
+
+\subsubsection{Umiestnenie reklamy}
+Dosah reklamy významne závisí aj od jej umiestenia. Reklamy situované na vodičovej strane cesty zaznamenali viacej fixácii než na opačnej strane cesty. Predpoklad, že výška umiestnenia reklamy predĺži trvanie fixácie bol negatívne potvrdený v práci \cite{costa} a \cite{crundall}. Autori zistili, že vodiči sa viac pozerali na reklamy na úrovni cesty než na reklamy vyvýšené tri a viac metrov nad zemou. Výnimkou sú prípady, kedy vodiči cielene vyhľadávajú reklamy, vtedy sa obzerajú viac do výšky. Okrem toho niektoré práce brali do úvahy uhol reklamnej plochy \cite{zalesinska2018impact}, náročnosť dopravného úseku, typ prostredia a jeho komplexnosť \cite{costa, mollu2018driving} pričom sa ukázalo, že všetky tieto prvky do istej miery vplývajú na sledovanosť reklamy.
+
+\subsubsection{Obsah reklamy}
+
+Poslednou dôležitou charakteristikou reklamy je jej obsah. Štúdie \cite{harasimczuk2021longer, meuleners2020identifying} potvrdzujú predpoklad, že reklamy s dlhším textom dosahujú dlhšie fixácie. To takisto platí pre reklamy so sexuálnym podtónom \cite{MaliszewskiNorbert2019Iosa} a pre reklamy, na ktorých sa nachádza ľudská bytosť \cite{tarnowski2017roadside}. Zároveň platí, že čím je reklama zložitejšia, tým dlhšie sa na ňu vodič pozerá \cite{marciano2017effect}. Skúmaný bol aj obsah reklamy, ktorý u vodiča vyvoláva negatívne emócie \cite{chan2013emotional}. Zistilo sa, že takisto zapríčiňuje dlhšie fixácie a zároveň vedie k zníženiu rýchlosti. Okrem toho dotazníky vyplnené vodičmi po jazde ukázali, že negatívnu reklamu si vodiči zapamätajú najviac.
+
+%\subsection{Podobné práce}
+
+% \subsection{Saliency map}
+
+% Z pohľadu počítačového videnia existujú viaceré metódy, ktoré majú za cieľ detegovať významné oblasti v scénach. Pravdepodobne najvplyvnejší pokus o pochopenie pozornosti urobili Christof Koch a Shimon Ullman. Navrhli, aby sa rôzne vizuálne prvky, ktoré prispievajú k pozornému výberu (napr. farba, orientácia, pohyb atď.), skombinovali do jedinej topograficky orientovanej mapy význačností, \textit{saliency map}, ktorá integruje normalizované informácie z máp jednotlivých prvkov do jednej globálnej mapy význačnosti \cite{Itti}. Saliency map je model, ktorý predikuje fixáciu očí vo vizuálnej scéne.
+
+% \subsection{Podobné práce}
+
+% Pomocou počítačového videnia sa podorilo dosiahnuť dobré výsledky, ale s príchodom hlbokého učenia sa vytváranie mapy význačností ešte viac zlepšilo. S dostatočným množstvom trénovacích údajov dosiahli viaceré architektúry dobré výsledky. Prvý prístup založený na neurónových sieťach je uvedený v práci \cite{FSM}. Najrozsiahlejší dataset na vyhodnocovanie mapy význačností je SALICON \cite{SALICON} a hneď za ním MIT300 \cite{MIT300}. Na oboch datasetoch v súčastnosti dosahuje najlepšie výsledky TranSalNet \cite{TranSalNet}. Model integruje komponenty z transformátorov do CNN na zachytenie kontextových vizuálnych informácií s dlhým dosahom. Experimentálne výsledky ukazujú, že transformátory poskytujú pridanú hodnotu ku predikcii význačnosti.
+
+% Okrem statických obrázkov sa určuje mapa významností aj pre videá, kde ide o snahu predikcie fixácie v postupnosti video snímok. Táto oblasť je doposiaľ menej preskúmaná, ale pribúda čoraz viac práce, ktoré  prinášajú významné pokroky v tejto oblasti. State-of-art modelom je ViNet \cite{Vinet}, ktorá priniesla oproti predchodcovi \cite{UniSal} zlepšenie vo všetkých meraných metrikách. ViNet využíva vizuálne príznaky zo siete trénovanej na rozpoznávanie akcií a odvodzuje mapu význačnosti prostredníctvom trilineárnej interpolácie a 3D konvolúcií.
+
+% % Over the last few decades, several computational models have been proposed for im- itating attentional mechanisms of HVS during static scene viewing. Significant advances have been achieved recently with the rapid spread of deep learning techniques and the availability of large-scale static gaze datasets (e.g., SALI- CON [31]). In stark contrast, predicting observers’ fixa- tions during dynamic scene free-viewing has less been ex- plored. This task, referred to as dynamic fixation prediction or video saliency detection is very useful for understand- ing human attentional behaviors and has several practical real-word applications (e.g., video captioning, compression, question answering, object segmentation, etc). 
+
+% % https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9349146
+
+% Publikované sú aj práce zaoberajúce sa konkrétne vizuálnej predikcii vodiča. Skupina autorov navrhla model \cite{FoA} založený na viac vetvovej hlbokej architektúre, ktorá integruje tri zdroje informácií: RGB frame, optical flow a sémantickú segmentáciu. Na tréning a testovanie použili DR(eye)VE dataset, ktorý obsahuje menej interakcií s ostatnými účastníkmi cestnej premávky. Navrhnutý model a aj ostatné modely trénované na tomto datasete mali vysokú tendenciu predikovať fixáciu na stred scény.
+
+% V ďalšej práci bolo navrhnuté \cite{BDDA} použitie metódy Human Weighted Sampling (HWS), ktorá využíva správanie ľudského pohľadu na identifikovanie dôležitých údajov z jazdy vozidla a výrazne im prikladá váhu počas tréningu modelu. Pomocou zozbieraného datasetu a HWS sa autorom podarilo vytvorili model predikcie, ktorý demonštruje sofistikované správanie, ako je napríklad sledovanie ľudí na prechode pre chodcov, pričom nedáva falošné pohľady na chodcov kráčajúcich bezpečne po chodníku. Pri zbieraní videí sa sústredili na to, aby obsahoval primárne kritické situácie s výskytom semaforov, chodcov, vystupujúcich ľudí z áut alebo iných príčin náhlych zmien v pohybe auta.
+
+% Narozdiel od dvoch predošlých prác, ďalší výskum \cite{APA} pracoval s fixáciou viacerých vodičov pre jeden video záznam. Jazda autom bola simulovaná. Účastníci výskumu boli skúsení vodiči, ktorý mali za úlohu pozerať na video ukážku z jazdy tak ako by boli šoférovali oni. Pomocou konvolučného modelu s de-konvolúciou sa autorom podarilo ukázalo sa, že mať viac dát pre jednu jazdu je užitočné na predikciu sekundárnych fixácií. V práci sú ich výsledky porovnávané s niektorými ostatnými modelmi podľa viacerých metrík.
+
+% % Nevýhodou pri použití tohto datasetu pre náš projekt je, ze každá video ukážka začína 6.5 sekúnd pred reakciou vodiča na nejakú náhlu zmenu jazdy a tak predpokladáme, že vo videách nenájdeme veľa prípadov, kedy by sa vodič stihol pozerať na reklamu nájdenú pri ceste. Túto hypotézu skúsime overiť neskôr v kapitole výsledkov.
